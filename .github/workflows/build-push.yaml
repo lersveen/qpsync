@@ -1,54 +1,22 @@
-name: "Release, build and push"
+name: "Build and push Docker image"
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - Containerfile
-      - go.mod
-      - go.sum
-      - main.go
-  workflow_dispatch:
+    tags:
+      - 'v*'
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 permissions:
+  contents: read
   packages: write
   attestations: write
   id-token: write
-  actions: read
-  contents: write
-  issues: write
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "lts/*"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Verify the integrity of provenance attestations and registry signatures for installed dependencies
-        run: npm audit signatures
-
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
-
   build-push:
-    needs: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -18,7 +18,7 @@ FROM go-upx AS builder
 
 WORKDIR /app
 
-ENV CGO_ENABLED 0
+ENV CGO_ENABLED=0
 
 COPY main.go go.mod go.sum  /app/
 
