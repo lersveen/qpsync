@@ -1,11 +1,13 @@
-# GoFwd
+# qpsync – qBittorrent Port Sync
 
-`gofwd` synchronizes the listening port in qBittorrent to the active port used by Gluetun. This is useful in cases
+`qpsync` is a utility to dynamically map the listening port in [qBittorrent](https://www.qbittorrent.org/) to the port forwarded by [Gluetun VPN client](https://github.com/qdm12/gluetun).
+
+Rewritten in Golang from [this shell script gist](https://gist.github.com/socketbox/12be539ba0e26b76529e082c97bff53c) by [socketbox](https://github.com/socketbox).
 
 ## Usage
 
 ```sh
-gofwd [options]
+qpsync [options]
 
 Options:
   -f    Path to config (default "config.yaml")
@@ -15,7 +17,7 @@ Options:
 
 ## Configuration
 
-GoFwd can be configured using a YAML config file, see [config-example.yaml](config-example.yaml).
+`qpsync` can be configured using a YAML config file, see [config-example.yaml](config-example.yaml).
 
 ### Environment variables
 

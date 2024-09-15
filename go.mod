@@ -1,4 +1,4 @@
-module gofwd
+module qpsync
 
 go 1.23.1
 

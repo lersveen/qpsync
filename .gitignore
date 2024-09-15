@@ -14,9 +14,9 @@ go.work.sum
 # env file
 .env
 
-# GoFWd config file
+# YAML config file
 config.yaml
 
 # Binaries
-gofwd
+qpsync
 main
