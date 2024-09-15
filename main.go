@@ -244,6 +244,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Run once or continuously depending on the -j flag
 	if *job {
 		err := update(config, *fwdFile)
 		if err != nil {
