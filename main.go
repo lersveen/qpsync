@@ -210,7 +210,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Override config with flag if set
 	if *updateFreq != 0 {
 		config.updateFreq = *updateFreq
 	}
