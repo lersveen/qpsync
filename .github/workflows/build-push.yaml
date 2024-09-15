@@ -1,9 +1,10 @@
 name: "Build and push Docker image"
 
 on:
+  workflow_dispatch:
   push:
     tags:
-      - 'v*'
+      - '*'
 
 env:
   REGISTRY: ghcr.io
