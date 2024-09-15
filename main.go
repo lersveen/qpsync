@@ -75,7 +75,7 @@ func loadConfig(configyaml string) (*Config, error) {
 	return config, nil
 }
 
-func findConfiguredPort(config *Config, cookie string) (int, error) {
+func findListenPort(config *Config, cookie string) (int, error) {
 	url := fmt.Sprintf("http://%s:%d/api/v2/app/preferences", config.QBittorrentServer, config.QBittorrentPort)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Referer", fmt.Sprintf("http://%s:%d", config.QBittorrentServer, config.QBittorrentPort))
@@ -100,7 +100,7 @@ func findConfiguredPort(config *Config, cookie string) (int, error) {
 	return prefs.ListenPort, nil
 }
 
-func findActivePort(config *Config) (int, error) {
+func findFwdPort(config *Config) (int, error) {
 	url := fmt.Sprintf("http://%s:%d/v1/openvpn/portforwarded", config.GluetunServer, config.GluetunPort)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -176,24 +176,24 @@ func update(config *Config) error {
 		return fmt.Errorf("unable to log in to qBittorrent: %s", err)
 	}
 
-	configuredPort, err := findConfiguredPort(config, cookie)
+	listenPort, err := findListenPort(config, cookie)
 	if err != nil {
-		return fmt.Errorf("unable to find configured port in Qbittorrent: %s", err)
+		return fmt.Errorf("unable to find listening port in Qbittorrent: %s", err)
 	}
 
-	activePort, err := findActivePort(config)
+	fwdPort, err := findFwdPort(config)
 	if err != nil {
-		return fmt.Errorf("unable to find active port in Gluetun: %s", err)
+		return fmt.Errorf("unable to find forwarded port in Gluetun: %s", err)
 	}
 
-	if configuredPort != activePort {
-		if err := qbtUpdatePort(config, cookie, activePort); err != nil {
+	if listenPort != fwdPort {
+		if err := qbtUpdatePort(config, cookie, fwdPort); err != nil {
 			return fmt.Errorf("port update failed: %s", err)
 		} else {
-			log.Printf("port updated: %d -> %d", configuredPort, activePort)
+			log.Printf("qBittorrent listen port updated: %d -> %d", listenPort, fwdPort)
 		}
 	} else {
-		log.Printf("qBittorrent port (%d) already up to date", configuredPort)
+		log.Printf("qBittorrent listen port (%d) already up to date", listenPort)
 	}
 
 	return nil
