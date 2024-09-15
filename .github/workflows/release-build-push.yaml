@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '.github/**'
-      - '**README.md'
-      - .gitignore
-      - LICENSE
-      - config-example.yaml
+    paths:
+      - Containerfile
+      - go.mod
+      - go.sum
+      - main.go
   workflow_dispatch:
 
 env:
@@ -73,6 +72,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Containerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
