@@ -236,7 +236,7 @@ func main() {
 	configYaml := flag.String("f", "config.yaml", "Path to config")
 	fwdFile := flag.String("i", "", "Path to forward port file")
 	job := flag.Bool("j", false, "Run as a job, updating once")
-	updateFreq := flag.Int("u", 600, "Update frequency in seconds")
+	updateFreq := flag.Int("u", 300, "Update frequency in seconds")
 	flag.Parse()
 
 	config, err := loadConfig(*configYaml)

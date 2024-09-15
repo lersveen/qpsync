@@ -13,7 +13,7 @@ Options:
   -f    Path to config (default "config.yaml")
   -i    Path to forward port file
   -j    Run as a job, updating once
-  -u    Update frequency in seconds (default 600)
+  -u    Update frequency in seconds (default 300)
 ```
 
 You can sync the forward port from a plain text file by specifying `-i <file>`. This overrides the default of syncing the port from Gluetun control server.
