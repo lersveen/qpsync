@@ -1,0 +1,25 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Oslo"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: "Europe/Oslo"
+    ignore:
+      # Pin all Github Actions at major versions
+      - dependency-name: "*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
