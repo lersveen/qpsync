@@ -24,6 +24,8 @@ jobs:
       actions: read
       contents: write
       issues: write
+    outputs:
+      release_tag: ${{ steps.get_release_tag.outputs.release_tag }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +47,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
+      - name: Get latest release name
+        id: get_release_tag
+        run: |
+          release_tag=$(curl --silent "https://api.github.com/repos/${{ github.repository }}/releases/latest" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" | jq -r .name)
+          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
+
   build-push:
+    needs: release
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -66,11 +75,13 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
+          flavor: |
+            latest=true
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=semver,pattern={{version}},value=${{ needs.release.outputs.release_tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.release.outputs.release_tag }}
+            type=semver,pattern={{major}},value=${{ needs.release.outputs.release_tag }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
