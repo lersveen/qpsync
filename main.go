@@ -22,7 +22,6 @@ type Config struct {
 	QBittorrentPort   int    `yaml:"qbittorrent_port" env:"QBITTORRENT_PORT"`
 	GluetunServer     string `yaml:"gluetun_server" env:"GLUETUN_SERVER"`
 	GluetunPort       int    `yaml:"gluetun_port" env:"GLUETUN_PORT"`
-	updateFreq        int    `yaml:"update_freq" env:"UPDATE_FREQ"`
 }
 
 type QBittorrentPreferences struct {
@@ -210,10 +209,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if *updateFreq != 0 {
-		config.updateFreq = *updateFreq
-	}
-
 	if *job {
 		err := update(config)
 		if err != nil {
@@ -225,7 +220,7 @@ func main() {
 			if err != nil {
 				log.Println(err)
 			}
-			time.Sleep(time.Duration(config.updateFreq) * time.Second)
+			time.Sleep(time.Duration(*updateFreq) * time.Second)
 		}
 	}
 }
