@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -169,20 +170,53 @@ func qbtUpdatePort(config *Config, cookie string, port int) error {
 	return nil
 }
 
-func update(config *Config) error {
+func findFwdPortFromFile(fwdFile string) (int, error) {
+	fwdPortFile, err := os.Open(fwdFile)
+	if err != nil {
+		return 0, fmt.Errorf("unable to open forwarded port file: %s", err)
+	}
+	defer fwdPortFile.Close()
+
+	fwdPortBytes, err := io.ReadAll(fwdPortFile)
+	if err != nil {
+		return 0, fmt.Errorf("unable to read forwarded port file: %s", err)
+	}
+
+	fwdPort, err := strconv.Atoi(strings.TrimSpace(string(fwdPortBytes)))
+	if err != nil {
+		return 0, fmt.Errorf("invalid forwarded port: %s", err)
+	}
+
+	return fwdPort, nil
+}
+
+func update(config *Config, fwdFile string) error {
 	cookie, err := qbtLogin(config)
 	if err != nil {
 		return fmt.Errorf("unable to log in to qBittorrent: %s", err)
 	}
 
+	var fwdPort int
+
+	if fwdFile != "" {
+		fwdPort, err = findFwdPortFromFile(fwdFile)
+		if err != nil {
+			return fmt.Errorf("unable to find port number in file '%s': %s", fwdFile, err)
+		}
+	} else {
+		fwdPort, err = findFwdPort(config)
+		if err != nil {
+			return fmt.Errorf("unable to find forwarded port in Gluetun: %s", err)
+		}
+	}
+
+	if fwdPort < 1 || fwdPort > 65535 {
+		return fmt.Errorf("invalid port number found for forwarded port: %d", fwdPort)
+	}
+
 	listenPort, err := findListenPort(config, cookie)
 	if err != nil {
 		return fmt.Errorf("unable to find listening port in Qbittorrent: %s", err)
-	}
-
-	fwdPort, err := findFwdPort(config)
-	if err != nil {
-		return fmt.Errorf("unable to find forwarded port in Gluetun: %s", err)
 	}
 
 	if listenPort != fwdPort {
@@ -199,24 +233,25 @@ func update(config *Config) error {
 }
 
 func main() {
-	configyaml := flag.String("f", "config.yaml", "Path to config")
+	configYaml := flag.String("f", "config.yaml", "Path to config")
+	fwdFile := flag.String("i", "", "Path to forward port file")
 	job := flag.Bool("j", false, "Run as a job, updating once")
 	updateFreq := flag.Int("u", 600, "Update frequency in seconds")
 	flag.Parse()
 
-	config, err := loadConfig(*configyaml)
+	config, err := loadConfig(*configYaml)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if *job {
-		err := update(config)
+		err := update(config, *fwdFile)
 		if err != nil {
 			log.Println(err)
 		}
 	} else {
 		for {
-			err := update(config)
+			err := update(config, *fwdFile)
 			if err != nil {
 				log.Println(err)
 			}
